@@ -1,0 +1,5 @@
+language: node_js
+
+# test on node.js version 8
+node_js:
+  - 8
