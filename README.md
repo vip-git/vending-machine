@@ -14,3 +14,7 @@ npm start
 ```
 npm test
 ```
+
+# Concept Overview (Very rough Diagram)
+![Concept](https://github.com/vip-git/vending-machine/blob/master/concept-vending-machine.png)
+
