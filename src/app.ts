@@ -1,8 +1,8 @@
-import { VendingView } from './view/vending.view';
+import { VendingMachineCMDView } from './view/vending-machine.cmd.view';
 
 export default class VendingMachineApp {
 
     constructor() {
-        return new VendingView();
+        return new VendingMachineCMDView();
     }
-} 
+}

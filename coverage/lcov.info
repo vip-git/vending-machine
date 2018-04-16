@@ -106,7 +106,7 @@ BRF:8
 BRH:8
 end_of_record
 TN:
-SF:/Users/vipinessent/htdocs/vending-machine/src/service/vending-machine.service.ts
+SF:/Users/vipinessent/htdocs/vending-machine/src/services/vending-machine.service.ts
 FN:21,(anonymous_0)
 FN:26,VendingMachineService
 FN:36,(anonymous_2)

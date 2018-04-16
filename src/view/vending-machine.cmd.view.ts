@@ -2,9 +2,9 @@
 import * as prompt from 'prompt';
 
 // Services
-import { VendingMachineService } from './../service/vending-machine.service';
+import { VendingMachineService } from './../services/vending-machine.service';
 
-export class VendingView {
+export class VendingMachineCMDView {
 
     private vendingService: VendingMachineService;
 
