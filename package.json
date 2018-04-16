@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx ts-node index.ts",
+    "generate:docs": "npx typedoc --out docs/ src/ --mode file --module commonjs --target es6",
     "test": "npx ts-node node_modules/istanbul/lib/cli.js cover -e .ts  -x \"*.d.ts\" -x \"*.spec.ts\" _mocha -- --compilers -R src/**/*.spec.ts"
   },
   "author": "Vipin Tanna",
@@ -18,7 +19,8 @@
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^5.1.0",
     "prompt": "^1.0.0",
-    "tslint": "^5.9.1"
+    "tslint": "^5.9.1",
+    "typedoc": "^0.11.1"
   },
   "dependencies": {
     "ts-node": "^5.0.1",

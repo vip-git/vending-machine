@@ -5,54 +5,23 @@ export interface IProductModel {
     category: string;
     price: number;
     attributes: Array<{}>;
+    getAllProducts?: () => IProductModel[];
 }
 
-export class ProductModel implements IProductModel {
-    get name(): string {
-        return this.name;
+export class ProductModel {
+
+    private model: IProductModel[];
+
+    constructor(initialValues: IProductModel[]) {
+        this.model = initialValues;
     }
 
-    set name(value) {
-        this.name = value;
-    }
-
-    get productId(): number {
-        return this.productId;
-    }
-
-    set productId(value) {
-        this.productId = value;
-    }
-
-    get amount(): number {
-        return this.amount;
-    }
-
-    set amount(value) {
-        this.amount = value;
-    }
-
-    get category(): string {
-        return this.category;
-    }
-
-    set category(value) {
-        this.category = value;
-    }
-
-    get price(): number {
-        return this.price;
-    }
-
-    set price(value) {
-        this.price = value;
-    }
-
-    get attributes(): Array<{}> {
-        return this.attributes;
-    }
-
-    set attributes(value) {
-        this.attributes = value;
+    /**************************************************************************************
+    * Gets all product information and filters which are unavailable.
+    *
+    * @return { Void } void.
+    **************************************************************************************/
+    public getAllProducts(): IProductModel[] {
+        return this.model.filter(product => product.amount > 0);
     }
 }

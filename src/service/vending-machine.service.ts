@@ -1,134 +1,93 @@
 // Models
-import {
-  UserModel,
-  VendingMachineModel,
-  ProductModel
-} from '../models/index';
+import { VendingMachineModel, IVendingMachineModel } from '../models/vending-machine.model';
+import { ProductModel, IProductModel } from '../models/product.model';
 
 // Mocks
-import { ProductsMockData } from './product-data.mock';
+import { ProductsMockData } from '../mocks/product-data.mock';
 
 /************************************************************************************************
  ** Following functions needed : ****************************************************************
  **   • Retrieve and show all products in a single list.
  **       • getAllProduct  (function that gets all product)
  **   • Accept user input for selecting a product.
- **       • selectProductFromMachine (function that calls getProductDetails)
+ **       • makeSelection (function that calls getProductDetails)
  **   • Show the price for a selected product.
- **       • getProductDetails (function that retrieves information about the product)
+ **       • getProduct (function that retrieves information about the product)
  **   • Accept user input for paying for the selected product.
- **       • purchaseProduct (function that retrieves information on buying the product)
+ **       • deposit (function that retrieves information on buying the product)
  **   • Display the purchased product.
- **       • validatePaymentConfirmation (function that confirms payment is made successfully)
+ **       • vendingMachineModel.validatePaymentConfirmation (function that confirms payment is made successfully)
  ***********************************************************************************************/
 export class VendingMachineService {
 
-  public vendingMachine: VendingMachineModel;
-  public products: ProductModel[];
+  private vendingMachineModel: VendingMachineModel;
+  private productModel: ProductModel;
 
-  constructor() {
-    // Initialize products setup
-    this.products = this.getAllProducts();
+  constructor(values: IVendingMachineModel) {
+    this.vendingMachineModel = new VendingMachineModel(values);
+    this.productModel = new ProductModel(ProductsMockData);
+  }
 
-    // Initialize vendingMachine setup
-    this.vendingMachine = {
-      balance: 0,
-      coins: 0,
-      userId: 0,
-      selectedProduct: null,
-      createdAt: 0
+  /**************************************************************************************
+  * Gets current vending machine values.
+  *
+  * @return {IVendingMachineModel} IVendingMachineModel
+  **************************************************************************************/
+  public getVendingMachineValues(): IVendingMachineModel {
+    return {
+      coins: this.vendingMachineModel.getValues().coins,
+      balance: this.vendingMachineModel.getValues().balance,
+      selectedProduct: this.vendingMachineModel.getValues().selectedProduct,
+      createdAt: this.vendingMachineModel.getValues().createdAt
     };
   }
 
-  /**
-   * Description :
-   *  - Deposits money and adds to the balance.
-   */
-  public deposit(amount) {
-    this.vendingMachine.balance = this.vendingMachine.balance + amount;
-    this.validatePaymentConfirmation();
+  /**************************************************************************************
+  * Gets all product information from product model.
+  *
+  * @return {IProductModel[]} IProductModel[]
+  **************************************************************************************/
+  public getAllProducts(): IProductModel[] {
+    return this.productModel.getAllProducts();
   }
 
-  /**
-   * Description :
-   *  - Makes selection and calls purchase product
-   */
-  public makeSelection(productId) {
+  /**************************************************************************************
+  * Deposits money and adds to the balance.
+  *
+  * @param {integer} amount
+  * @param {Function} callback
+  * @return {Function} to validate payment.
+  **************************************************************************************/
+  public deposit(amount, callback): void | boolean {
+    if (this.getVendingMachineValues().coins.indexOf(amount) === -1) { return false; }
+    this.vendingMachineModel.setValues('balance', this.getVendingMachineValues().balance + amount);
+    return this.vendingMachineModel.validatePaymentConfirmation(callback);
+  }
+
+  /**************************************************************************************
+  * Makes selection of the product.
+  *
+  * @param {integer} productId
+  * @param {Function} callback
+  * @return {boolean}
+  **************************************************************************************/
+  public makeSelection(productId, callback): boolean {
     if (this.getProduct(productId)) {
-      this.vendingMachine.selectedProduct = this.getProduct(productId);
-      this.validatePaymentConfirmation();
+      this.vendingMachineModel.setValues('selectedProduct', this.getProduct(productId));
+      this.vendingMachineModel.validatePaymentConfirmation(callback);
+      return true;
     } else {
-      console.info('\x1b[31m%s\x1b[0m', 'Invalid Product Selected - Please Try Again');
-      return 'invalid';
+      return false;
     }
   }
 
-  /**
-   * Description :
-   *  - Validates payment is made
-   *  - takes id as parameter
-   *  - returns confirmation
-   */
-  public validatePaymentConfirmation() {
-    if (this.vendingMachine && this.vendingMachine.selectedProduct &&
-          this.vendingMachine.balance >= this.vendingMachine.selectedProduct.price) {
-
-      // subtract balance
-      this.vendingMachine.balance = this.vendingMachine.balance - this.vendingMachine.selectedProduct.price;
-
-      // subtract inventory
-      this.vendingMachine.selectedProduct.amount = this.vendingMachine.selectedProduct.amount - 1;
-
-      this.purchaseProduct(this.vendingMachine.selectedProduct);
-
-      // clear the selection
-      this.vendingMachine.selectedProduct = null;
-
-      this.refundBalance();
-    }
-  }
-
- /**
-  * Description :
-  *  - Gets all product information.
-  *  - sorts them in the right order
-  */
-  private getAllProducts() {
-    return ProductsMockData;
-  }
-
- /**
-  * Description :
-  *  - Gets all product information.
-  *  - sorts them in the right order
-  */
-  private getProduct(productId): ProductModel {
-    return this.products.find((product, index) => product.productId === productId);
-  }
-
-  /**
-   * Description :
-   *  - Refund balance if the transaction is cancelled.
-   */
-  private refundBalance() {
-    if (this.vendingMachine.balance > 0) {
-      const refundAmount = this.vendingMachine.balance;
-      this.vendingMachine.balance = 0;
-
-      // ... call hardware to emit coins
-      console.info('\x1b[36m%s\x1b[0m', 'Refunding ' + refundAmount);
-    }
-  }
-
-  /**
-   * Description :
-   *  - Sends request to make a purchase request
-   *  - deducts information from product amount
-   *  - takes id as parameter
-   *  - returns paymentId
-   */
-  private purchaseProduct(product) {
-    // ... call hardware to dispense drink
-    console.info('\x1b[36m%s\x1b[0m', 'Dispensing ' + product.name);
+  /**************************************************************************************
+  * Gets specific product information from all available products.
+  *
+  * @param {integer} productId
+  * @return {IProductModel} IProductModel
+  **************************************************************************************/
+  private getProduct(productId): IProductModel {
+    return this.getAllProducts().find((product, index) => product.productId === productId);
   }
 }

@@ -7,29 +7,52 @@ import { VendingMachineService } from './../service/vending-machine.service';
 export class VendingView {
 
     private vendingService: VendingMachineService;
-    private amountSpent: number;
 
     constructor () {
         prompt.start({noHandleSIGINT: true});
-        this.vendingService = new VendingMachineService();
-        this.amountSpent = 0;
+        this.vendingService = new VendingMachineService({
+            balance: 0,
+            coins: [1, 2, 5, 10, 20, 50],
+            selectedProduct: null,
+            createdAt: Date.now()
+        });
         this.askToSelectProductFromMachine();
     }
 
-    /**
-     * Description :
-     *  - Selects product from given list
-     *  - takes id as parameter
-     *  - returns product
-     */
+    /*****************************************************************************************
+    * Processes the payment and calls relevant hardware functions to dispense the product and
+    * refunds the money. (Right now for the time being just console logs)
+    *
+    * @param {Object} result
+    * @return {Void} void
+    **************************************************************************************/
+    private processPayment(result): void {
+        if (result && result.product && result.product.name) {
+            console.info('\x1b[36m%s\x1b[0m', 'Dispensing ' + result.product.name);
+        }
+
+        if (result && result.refundAmount) {
+            console.info('\x1b[36m%s\x1b[0m', 'Refunding ' + result.refundAmount);
+        }
+    }
+
+    /**************************************************************************************
+    * Asks to select a product from given list :
+    * if not the correct amount - it will ask to try again.
+    * if correct - it will print out results and refund extra money if applicable.
+    *
+    * @param {Object} product
+    * @return {Function} next prompt being called or similar prompt if there is an error.
+    **************************************************************************************/
     private getProductDetails(product) {
         let schema = {
             properties: {
                 amount: {
-                    description: 'Please enter the amount to buy ' + product.name +
-                    ' (Current Price: ' + product.price + ' and you paid ' + this.amountSpent + ')',
-                    pattern: /^[0-9\s\-]+$/,
-                    message: 'Amount must be only contain numbers',
+                    description: 'Insert Money to buy your product ' + product.name +
+                    ' (Current Price: ' + product.price + ') \n Coins Supported:' +
+                    this.vendingService.getVendingMachineValues().coins.toString(),
+                    pattern: /^(1|2|5|10|20|50)$/,
+                    message: 'Coin Unsupported - Please try again',
                     required: true
                 }
             }
@@ -38,21 +61,48 @@ export class VendingView {
         prompt.get(schema, (err, result) => {
             if (err) { prompt.stop(); }
             const amount = parseInt(result.amount, 10);
-            this.amountSpent = this.amountSpent + amount;
+            this.vendingService.deposit(amount, this.processPayment);
+            const amountPaid = this.vendingService.getVendingMachineValues().balance;
 
-            console.info('\x1b[36m%s\x1b[0m', 'Total Amount paid: ' + this.amountSpent);
-
-            this.vendingService.deposit(amount);
-            return (this.amountSpent < product.price) ? this.getProductDetails(product) :
-                    this.vendingService.validatePaymentConfirmation();
+            if (amountPaid === 0) {
+                return this.vendingService.deposit(amount, this.processPayment);
+            } else {
+                console.info('\x1b[36m%s\x1b[0m', 'Total Amount paid: ' + amountPaid);
+                return this.getProductDetails(product);
+            }
         });
     }
 
-    /**
-     * Description :
-     *  - Asks to Selects product from given list
-     *  - returns product
-     */
+    /**************************************************************************************
+    * Prints all products for selection :
+    * if product stock is over - it will ask to try again.
+    * if product is available - it will print it as part of the list.
+    *
+    * @param {} none
+    * @return {void} only prints the message
+    **************************************************************************************/
+    private printProductSelection() {
+        if (this.vendingService &&
+            this.vendingService.getAllProducts() &&
+            this.vendingService.getAllProducts().length) {
+            console.info('\x1b[33m%s\x1b[0m', 'Please select a product from list: ');
+            this.vendingService.getAllProducts().forEach(function(value, index) {
+                console.info('\x1b[32m%s\x1b[0m', '[' + value.productId + '] ' + value.name + ' for €' + value.price);
+            });
+        } else {
+            console.info('\x1b[33m%s\x1b[0m', 'All products are out of stock - Try Again later');
+        }
+    }
+
+
+    /**************************************************************************************
+    * Asks user to select products from machine :
+    * if incorrect (not in the list) - it will ask to try again.
+    * if correct (in the list) - it will ask for amount to be paid.
+    *
+    * @param {} none
+    * @return {void} only prints the message
+    **************************************************************************************/
     private askToSelectProductFromMachine() {
         let schema = {
             properties: {
@@ -65,20 +115,18 @@ export class VendingView {
             }
         };
 
+        this.printProductSelection();
+
         prompt.get(schema, (err, result) => {
             if (err) { prompt.stop(); }
 
-            console.info('\x1b[33m%s\x1b[0m', 'Please select 1 product from below: ');
-            this.vendingService.products.forEach((value, index) => {
-                console.info('\x1b[32m%s\x1b[0m', '[' + value.productId + '] ' + value.name + ' for €' + value.price);
-            });
-
-            if (this.vendingService.makeSelection(parseInt(result.productId, 10)) === 'invalid') {
+            if (!this.vendingService.makeSelection(parseInt(result.productId, 10), this.processPayment)) {
+                console.info('\x1b[31m%s\x1b[0m', 'Invalid Product Selected - Please Try Again');
                 this.askToSelectProductFromMachine();
             } else {
                 console.info('\x1b[36m%s\x1b[0m', 'Product Selected: ' +
-                this.vendingService.vendingMachine.selectedProduct.name);
-                return this.getProductDetails(this.vendingService.vendingMachine.selectedProduct);
+                this.vendingService.getVendingMachineValues().selectedProduct.name);
+                return this.getProductDetails(this.vendingService.getVendingMachineValues().selectedProduct);
             }
         });
     }

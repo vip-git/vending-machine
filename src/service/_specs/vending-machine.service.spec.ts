@@ -5,7 +5,13 @@ import * as chaiSpies from 'chai-spies';
 
 // Service
 import { VendingMachineService } from '../vending-machine.service';
-import { ProductsMockData } from '../product-data.mock';
+
+// Models
+import { VendingMachineModel } from '../../models/vending-machine.model';
+import { ProductModel } from '../../models/product.model';
+
+// Mocks
+import { ProductsMockData } from '../../mocks/product-data.mock';
 
 // testing inits
 chai.use(chaiSpies);
@@ -16,24 +22,36 @@ const should = chai.should();
 describe('Vending Service Specs', () => {
   let vendingService: any;
 
+  let callback = function() { };
+
   beforeEach(() => {
-    vendingService = new VendingMachineService();
-    chai.spy.on(vendingService, 'purchaseProduct');
-    chai.spy.on(vendingService, 'validatePaymentConfirmation');
-    chai.spy.on(vendingService, 'refundBalance');
+    vendingService = new VendingMachineService({
+                          balance: 0,
+                          coins: [1, 2, 5, 10, 20, 50],
+                          selectedProduct: null,
+                          createdAt: Date.now()
+                      });
+    chai.spy.on(vendingService.vendingMachineModel, 'validatePaymentConfirmation');
+    chai.spy.on(vendingService.vendingMachineModel, 'purchaseProduct');
+    chai.spy.on(vendingService.vendingMachineModel, 'clearSelection');
+    chai.spy.on(vendingService.vendingMachineModel, 'refundBalance');
   });
 
   it('should be able to check initial state', () => {
     // // check initial state
-    expect(vendingService.vendingMachine.balance).to.equal(0);
-    expect(vendingService.vendingMachine.selectedProduct).to.equal(null);
-    expect(vendingService.products).to.equal(ProductsMockData);
-    expect(vendingService.getProduct(1)).to.equal(ProductsMockData[0]);
+    expect(vendingService.vendingMachineModel.getValues().balance).to.equal(0);
+    expect(vendingService.vendingMachineModel.getValues().selectedProduct).to.equal(null);
+    expect(vendingService.getAllProducts()).to.eql(ProductsMockData.filter(product => product.amount > 0));
+    expect(vendingService.getVendingMachineValues()).to.eql(vendingService.vendingMachineModel.getValues());
   });
 
   it('should be able to deposit money', () => {
-    vendingService.deposit(25);
-    expect(vendingService.vendingMachine.balance).to.equal(25);
+    // should not be able to deposit with invalid coins.
+    expect(vendingService.deposit(25)).to.equal(false);
+
+    // should be able to deposit with valid coins [1, 2, 5, 10, 20, 50]
+    vendingService.deposit(20);
+    expect(vendingService.vendingMachineModel.getValues().balance).to.equal(20);
   });
 
   it('should be able to make selection', () => {
@@ -41,38 +59,49 @@ describe('Vending Service Specs', () => {
     vendingService.deposit(50);
 
     expect(vendingService.getProduct(1).amount).to.equal(10);
-    expect(vendingService.vendingMachine.balance).to.equal(50);
+    expect(vendingService.vendingMachineModel.getValues().balance).to.equal(50);
 
-    expect(vendingService.makeSelection(123424)).to.equal('invalid');
+    // try selecting a invalid product
+    expect(vendingService.makeSelection(123424)).to.equal(false);
 
-    vendingService.makeSelection(1);
+    vendingService.makeSelection(1, callback);
     expect(vendingService.getProduct(1).amount).to.equal(9);
-    expect(vendingService.purchaseProduct).to.have.been.called();
+    expect(vendingService.vendingMachineModel.purchaseProduct).to.have.been.called.with(callback);
+    expect(vendingService.vendingMachineModel.clearSelection).to.have.been.called();
   });
 
-  it('should be able to deposit after selection is done', () => {
+  it('should be able to deposit money after selection is done', () => {
     vendingService.deposit(20);
     expect(vendingService.getProduct(1).amount).to.equal(9);
-    expect(vendingService.vendingMachine.balance).to.equal(20);
-    expect(vendingService.vendingMachine.selectedProduct).to.equal(null);
+    expect(vendingService.vendingMachineModel.getValues().balance).to.equal(20);
+    expect(vendingService.vendingMachineModel.getValues().selectedProduct).to.equal(null);
 
     // make a selection first, put in extra money
-    vendingService.makeSelection(1);
-    expect(vendingService.validatePaymentConfirmation).to.have.been.called();
-    expect(vendingService.vendingMachine.selectedProduct.amount).to.equal(9);
+    vendingService.makeSelection(1, callback);
+    expect(vendingService.vendingMachineModel.validatePaymentConfirmation).to.have.been.called();
+    expect(vendingService.vendingMachineModel.getValues().selectedProduct.amount).to.equal(9);
 
-    vendingService.deposit(35);
-    expect(vendingService.purchaseProduct).to.have.been.called();
-    expect(vendingService.refundBalance).to.have.been.called();
-    expect(vendingService.vendingMachine.balance).to.equal(0);
+    vendingService.deposit(50, callback);
+    expect(vendingService.vendingMachineModel.purchaseProduct).to.have.been.called.with(callback);
+    expect(vendingService.vendingMachineModel.refundBalance).to.have.been.called.with(callback);
+    expect(vendingService.vendingMachineModel.getValues().balance).to.equal(0);
   });
 
   it('should be able to refund extra money', () => {
-    vendingService.deposit(100);
-    expect(vendingService.vendingMachine.balance).to.be.equal(100);
+    vendingService.deposit(50);
+    expect(vendingService.vendingMachineModel.getValues().balance).to.be.equal(50);
 
-    vendingService.makeSelection(1);
-    expect(vendingService.purchaseProduct).to.have.been.called();
-    expect(vendingService.refundBalance).to.have.been.called();
+    vendingService.makeSelection(1, callback);
+    expect(vendingService.vendingMachineModel.purchaseProduct).to.have.been.called.with(callback);
+    expect(vendingService.vendingMachineModel.refundBalance).to.have.been.called.with(callback);
+  });
+
+  it('should not refund money when exact amount is paid', () => {
+    vendingService.deposit(50);
+    expect(vendingService.vendingMachineModel.getValues().balance).to.be.equal(50);
+
+    vendingService.makeSelection(2, callback);
+    expect(vendingService.vendingMachineModel.purchaseProduct).to.have.been.called.with(callback);
+    expect(vendingService.vendingMachineModel.refundBalance).to.have.been.called.with(callback);
   });
 });
