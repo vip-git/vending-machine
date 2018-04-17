@@ -1,4 +1,5 @@
 import { IProductModel } from './product.model';
+import { VendingMachineBlockChainModel } from './vending-machine.blockchain.model';
 
 export enum coinsEnum {
     '1 euro'   = 1,
@@ -19,12 +20,15 @@ export interface IVendingMachineModel {
     purchaseProduct?: () => void;
 }
 
-export class VendingMachineModel {
+export class VendingMachineModel extends VendingMachineBlockChainModel {
 
-    private model: IVendingMachineModel;
+    private static data: IVendingMachineModel;
+    private static isBlockChainEnabled: boolean;
 
-    constructor(initialValues: IVendingMachineModel) {
-        this.model = initialValues;
+    constructor(initialValues: IVendingMachineModel, blockchainCreds: any) {
+        super(blockchainCreds);
+        VendingMachineModel.data = initialValues;
+        VendingMachineModel.isBlockChainEnabled = (blockchainCreds && blockchainCreds.web3 && blockchainCreds.contractInstance);
     }
 
     /**************************************************************************************
@@ -33,18 +37,33 @@ export class VendingMachineModel {
     * @return { Void } void.
     **************************************************************************************/
     public getValues() {
-        return this.model;
+        if (VendingMachineModel.isBlockChainEnabled) {
+            VendingMachineModel.data.balance = this.getBalanceViaBlockChain();
+            if (VendingMachineModel.data && VendingMachineModel.data.selectedProduct) {
+                VendingMachineModel.data.selectedProduct.productId = this.getSelectedProductIdViaBlockChain();
+                VendingMachineModel.data.selectedProduct.price = this.getSelectedProductPriceViaBlockChain();
+            }
+        }
+        return VendingMachineModel.data;
     }
 
-    /**************************************************************************************
-    * Sets Values for the model.
-    *
-    * @param { string } key
-    * @param { string } value
-    * @return { Void } void.
-    **************************************************************************************/
-    public setValues(key, value) {
-        this.model[key] = value;
+    public insertCoins(amount, success, failure) {
+        return (VendingMachineModel.isBlockChainEnabled) ? this.insertCoinsViaBlockChain(amount,
+                                                                VendingMachineModel.data.selectedProduct.price,
+                                                                success, failure, this.purchaseProduct,
+                                                                this.refundBalance)
+                                                         : this.setValues('balance',
+                                                            VendingMachineModel.data.balance + amount,
+                                                            this.validatePaymentConfirmation,
+                                                            success, failure);
+    }
+
+    public selectProduct(product, success, failure) {
+        this.setValues('selectedProduct', product);
+        return (VendingMachineModel.isBlockChainEnabled) ? this.selectProductViaBlockChain(product,
+                                                            success, failure, this.purchaseProduct,
+                                                            this.refundBalance)
+                                                         : this.validatePaymentConfirmation(success, failure);
     }
 
     /**************************************************************************************
@@ -53,11 +72,19 @@ export class VendingMachineModel {
     * @param { Function } callback
     * @return { Void } calls relevant function to process payment.
     **************************************************************************************/
-    public validatePaymentConfirmation(callback): void {
+    public validatePaymentConfirmation = (success, failure): void => {
+        if (VendingMachineModel.isBlockChainEnabled) {
+            this.validatePaymentConfirmationViaBlockChain(VendingMachineModel.data.selectedProduct.price,
+            success, failure, this.purchaseProduct, this.refundBalance);
+            return;
+        }
+
         if (this.isProductSelectionPaymentValid()) {
             this.processInventory();
-            this.purchaseProduct(callback);
-            this.refundBalance(callback);
+            this.purchaseProduct(success);
+            this.refundBalance(success);
+        } else {
+            failure();
         }
     }
 
@@ -67,8 +94,8 @@ export class VendingMachineModel {
     * @return { boolean } boolean.
     **************************************************************************************/
     private isProductSelectionPaymentValid(): boolean {
-        return (this.model.selectedProduct &&
-                this.model.balance >= this.model.selectedProduct.price);
+        return (VendingMachineModel.data.selectedProduct &&
+                VendingMachineModel.data.balance >= VendingMachineModel.data.selectedProduct.price);
     }
 
 
@@ -79,9 +106,25 @@ export class VendingMachineModel {
     **************************************************************************************/
     private processInventory(): void {
         // subtract balance
-        this.model.balance = this.model.balance - this.model.selectedProduct.price;
+        VendingMachineModel.data.balance = VendingMachineModel.data.balance - VendingMachineModel.data.selectedProduct.price;
         // subtract inventory
-        this.model.selectedProduct.amount = this.model.selectedProduct.amount - 1;
+        VendingMachineModel.data.selectedProduct.amount = VendingMachineModel.data.selectedProduct.amount - 1;
+    }
+
+
+    /**************************************************************************************
+    * Sets Values for the model.
+    *
+    * @param { string } key
+    * @param { string } value
+    * @return { Void } void.
+    **************************************************************************************/
+    private setValues(key, value, callback: any = false, successCallback: any = false, failureCallback: any = false) {
+        VendingMachineModel.data[key] = value;
+
+        if (callback) {
+            callback(successCallback, failureCallback);
+        }
     }
 
     /**************************************************************************************
@@ -90,7 +133,7 @@ export class VendingMachineModel {
     * @return { Void } Void.
     **************************************************************************************/
     private clearSelection(): void {
-        return (this.model.selectedProduct = null);
+        return (VendingMachineModel.data.selectedProduct = null);
     }
 
     /**************************************************************************************
@@ -100,9 +143,9 @@ export class VendingMachineModel {
     * @param { Function } callback
     * @return { Function } calls relevant function to dispense product from machine.
     **************************************************************************************/
-    private purchaseProduct(callback) {
+    private purchaseProduct = (callback) => {
         const result = {
-            product: this.model.selectedProduct
+            product: VendingMachineModel.data.selectedProduct
         };
 
         this.clearSelection();
@@ -117,13 +160,13 @@ export class VendingMachineModel {
     * @param { Function } callback
     * @return { Void } calls relevant function to process payment.
     **************************************************************************************/
-    private refundBalance(callback): void | boolean {
-        if (this.model.balance > 0) {
+    private refundBalance = (callback): void | boolean => {
+        if (this.getValues().balance > 0) {
             const result = {
-                refundAmount: this.model.balance
+                refundAmount: VendingMachineModel.data.balance
             };
 
-            this.model.balance = 0;
+            VendingMachineModel.data.balance = 0;
 
             // ... call hardware to emit coins
             return callback(result);

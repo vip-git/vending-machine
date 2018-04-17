@@ -23,8 +23,8 @@ export class VendingMachineService {
   private vendingMachineModel: VendingMachineModel;
   private productModel: ProductModel;
 
-  constructor(values: IVendingMachineModel) {
-    this.vendingMachineModel = new VendingMachineModel(values);
+  constructor(values: IVendingMachineModel, blockchainCreds: any = false) {
+    this.vendingMachineModel = new VendingMachineModel(values, blockchainCreds);
     this.productModel = new ProductModel(ProductsMockData);
   }
 
@@ -34,12 +34,7 @@ export class VendingMachineService {
   * @return {IVendingMachineModel} IVendingMachineModel
   **************************************************************************************/
   public getVendingMachineValues(): IVendingMachineModel {
-    return {
-      coins: this.vendingMachineModel.getValues().coins,
-      balance: this.vendingMachineModel.getValues().balance,
-      selectedProduct: this.vendingMachineModel.getValues().selectedProduct,
-      createdAt: this.vendingMachineModel.getValues().createdAt
-    };
+    return this.vendingMachineModel.getValues();
   }
 
   /**************************************************************************************
@@ -58,10 +53,9 @@ export class VendingMachineService {
   * @param {Function} callback
   * @return {Function} to validate payment.
   **************************************************************************************/
-  public deposit(amount, callback): void | boolean {
+  public deposit(amount, successCallback, failureCallback): void | boolean {
     if (this.getVendingMachineValues().coins.indexOf(amount) === -1) { return false; }
-    this.vendingMachineModel.setValues('balance', this.getVendingMachineValues().balance + amount);
-    return this.vendingMachineModel.validatePaymentConfirmation(callback);
+    return this.vendingMachineModel.insertCoins(amount, successCallback, failureCallback);
   }
 
   /**************************************************************************************
@@ -71,14 +65,16 @@ export class VendingMachineService {
   * @param {Function} callback
   * @return {boolean}
   **************************************************************************************/
-  public makeSelection(productId, callback): boolean {
-    if (this.getProduct(productId)) {
-      this.vendingMachineModel.setValues('selectedProduct', this.getProduct(productId));
-      this.vendingMachineModel.validatePaymentConfirmation(callback);
-      return true;
+  public makeSelection(productId, successCallback, failureCallback): void | boolean {
+    if (this.doesProductExists(productId)) {
+      return this.vendingMachineModel.selectProduct(this.getProduct(productId), successCallback, failureCallback);
     } else {
       return false;
     }
+  }
+
+  public doesProductExists(selection): boolean {
+    return (this.getAllProducts().length > selection && selection > 0);
   }
 
   /**************************************************************************************

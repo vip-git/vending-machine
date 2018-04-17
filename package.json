@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx ts-node index.ts",
+    "blockchain-server": "node_modules/.bin/testrpc",
     "generate:docs": "npx typedoc --out docs/ src/ --mode file --module commonjs --target es6",
     "test": "npx ts-node node_modules/istanbul/lib/cli.js cover -e .ts  -x \"*.d.ts\" -x \"*.spec.ts\" _mocha -- --compilers -R src/**/*.spec.ts"
   },
@@ -23,7 +24,10 @@
     "typedoc": "^0.11.1"
   },
   "dependencies": {
+    "ethereumjs-testrpc": "^6.0.3",
+    "solc": "^0.4.21",
     "ts-node": "^5.0.1",
-    "typescript": "^2.8.1"
+    "typescript": "^2.8.1",
+    "web3": "^0.20.0"
   }
 }
