@@ -2,7 +2,7 @@ import { VendingMachineCMDView } from './view/vending-machine.cmd.view';
 
 export default class VendingMachineApp {
 
-    constructor() {
-        return new VendingMachineCMDView();
+    constructor(blockChainCreds: any = false) {
+        return new VendingMachineCMDView(blockChainCreds);
     }
 }

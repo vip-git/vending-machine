@@ -9,13 +9,18 @@
 # Setup Instructions
 ```
 npm install
-npm start
+
+npm run blockchain-server (in a seperate command line or tab)
+npm start -- --blockchain (in same tab or new one)
 ```
 
 # Test Coverage
 ```
 npm test
 ```
+
+# Demo (with Blockchain server)
+![blockchain](https://github.com/vip-git/vending-machine/blob/blockchain/demo.gif)
 
 # Concept Overview (Very rough Diagram)
 ![Concept](https://github.com/vip-git/vending-machine/blob/master/concept-vending-machine.png)

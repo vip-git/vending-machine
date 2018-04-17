@@ -8,14 +8,14 @@ export class VendingMachineCMDView {
 
     private vendingService: VendingMachineService;
 
-    constructor () {
+    constructor (blockchainCreds: any = false) {
         prompt.start({noHandleSIGINT: true});
         this.vendingService = new VendingMachineService({
             balance: 0,
             coins: [1, 2, 5, 10, 20, 50],
             selectedProduct: null,
             createdAt: Date.now()
-        });
+        }, blockchainCreds);
         this.askToSelectProductFromMachine();
     }
 
@@ -26,7 +26,7 @@ export class VendingMachineCMDView {
     * @param {Object} result
     * @return {Void} void
     **************************************************************************************/
-    private processPayment(result): void {
+    private processPayment = (result): void => {
         if (result && result.product && result.product.name) {
             console.info('\x1b[36m%s\x1b[0m', 'Dispensing ' + result.product.name);
         }
@@ -44,7 +44,8 @@ export class VendingMachineCMDView {
     * @param {Object} product
     * @return {Function} next prompt being called or similar prompt if there is an error.
     **************************************************************************************/
-    private getProductDetails(product) {
+    private getProductDetails = (product): void => {
+        product = (!product) ? this.vendingService.getVendingMachineValues().selectedProduct : product;
         let schema = {
             properties: {
                 amount: {
@@ -61,15 +62,9 @@ export class VendingMachineCMDView {
         prompt.get(schema, (err, result) => {
             if (err) { prompt.stop(); }
             const amount = parseInt(result.amount, 10);
-            this.vendingService.deposit(amount, this.processPayment);
-            const amountPaid = this.vendingService.getVendingMachineValues().balance;
-
-            if (amountPaid === 0) {
-                return this.vendingService.deposit(amount, this.processPayment);
-            } else {
-                console.info('\x1b[36m%s\x1b[0m', 'Total Amount paid: ' + amountPaid);
-                return this.getProductDetails(product);
-            }
+            const amountPaid = this.vendingService.getVendingMachineValues().balance + amount;
+            console.info('\x1b[36m%s\x1b[0m', 'Total Amount paid: ' + amountPaid);
+            this.vendingService.deposit(amount, this.processPayment, this.getProductDetails);
         });
     }
 
@@ -92,6 +87,12 @@ export class VendingMachineCMDView {
         } else {
             console.info('\x1b[33m%s\x1b[0m', 'All products are out of stock - Try Again later');
         }
+    }
+
+    private processSelection = (): void => {
+        console.info('\x1b[36m%s\x1b[0m', 'Product Selected: ' +
+        this.vendingService.getVendingMachineValues().selectedProduct.name);
+        return this.getProductDetails(this.vendingService.getVendingMachineValues().selectedProduct);
     }
 
 
@@ -119,14 +120,11 @@ export class VendingMachineCMDView {
 
         prompt.get(schema, (err, result) => {
             if (err) { prompt.stop(); }
-
-            if (!this.vendingService.makeSelection(parseInt(result.productId, 10), this.processPayment)) {
+            if (!this.vendingService.doesProductExists(result.productId)) {
                 console.info('\x1b[31m%s\x1b[0m', 'Invalid Product Selected - Please Try Again');
                 this.askToSelectProductFromMachine();
             } else {
-                console.info('\x1b[36m%s\x1b[0m', 'Product Selected: ' +
-                this.vendingService.getVendingMachineValues().selectedProduct.name);
-                return this.getProductDetails(this.vendingService.getVendingMachineValues().selectedProduct);
+                return this.vendingService.makeSelection(parseInt(result.productId, 10), this.processPayment, this.processSelection);
             }
         });
     }
