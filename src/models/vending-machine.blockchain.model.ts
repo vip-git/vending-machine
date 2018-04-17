@@ -1,3 +1,9 @@
+/****
+ * Todo:
+ *  - Unit tests for this file to be covered using truffle framework
+ *  - Example :
+ *    - http://truffleframework.com/docs/getting_started/javascript-tests
+ */
 export class VendingMachineBlockChainModel {
 
     private web3: any;
@@ -18,6 +24,7 @@ export class VendingMachineBlockChainModel {
     * @param { Function } refundCallback
     * @return { Void } void.
     **************************************************************************************/
+    /* istanbul ignore next */
     public insertCoinsViaBlockChain(amount, price, successCallback, failureCallback, purchaseCallback, refundCallback) {
         return this.contractInstance.insertCoins(amount, {from: this.web3.eth.accounts[0]}, (err, result) => {
             this.validatePaymentConfirmationViaBlockChain(price,
@@ -38,6 +45,7 @@ export class VendingMachineBlockChainModel {
     * @param { Function } refundCallback
     * @return { Void } void.
     **************************************************************************************/
+    /* istanbul ignore next */
     public selectProductViaBlockChain(product, successCallback, failureCallback, purchaseCallback, refundCallback) {
         return this.contractInstance.selectedProduct(product.productId, product.price,
                     {from: this.web3.eth.accounts[0]}, (err, result) => {
@@ -55,6 +63,7 @@ export class VendingMachineBlockChainModel {
     * @param {} none
     * @return { Void } void.
     **************************************************************************************/
+    /* istanbul ignore next */
     public getSelectedProductPriceViaBlockChain() {
         return parseInt(this.contractInstance.getSelectedProductPrice.call().toString(), 10) || 0;
     }
@@ -65,6 +74,7 @@ export class VendingMachineBlockChainModel {
     * @param {} none
     * @return { Void } void.
     **************************************************************************************/
+    /* istanbul ignore next */
     public getSelectedProductIdViaBlockChain() {
         return parseInt(this.contractInstance.getSelectedProductId.call().toString(), 10) || 0;
     }
@@ -76,6 +86,7 @@ export class VendingMachineBlockChainModel {
     * @param { string } value
     * @return { Void } void.
     **************************************************************************************/
+    /* istanbul ignore next */
     public getBalanceViaBlockChain() {
         return parseInt(this.contractInstance.getBalance.call().toString(), 10);
     }
@@ -90,6 +101,7 @@ export class VendingMachineBlockChainModel {
     * @param { Function } refundCallback
     * @return { Void } calls relevant function to process payment.
     **************************************************************************************/
+    /* istanbul ignore next */
     public validatePaymentConfirmationViaBlockChain(price, success, failure, purchaseCallback, refundCallback): void {
         if (this.isProductSelectionPaymentValidViaBlockChain()) {
             this.processInventoryViaBlockChain();
@@ -100,10 +112,12 @@ export class VendingMachineBlockChainModel {
         }
     }
 
+    /* istanbul ignore next */
     private isProductSelectionPaymentValidViaBlockChain () {
         return (this.contractInstance.validatePayment.call().toString() === 'true');
     }
 
+    /* istanbul ignore next */
     private processInventoryViaBlockChain () {
         return this.contractInstance.processInventory({from: this.web3.eth.accounts[0]});
     }
