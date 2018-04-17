@@ -11,8 +11,11 @@ export class VendingMachineBlockChainModel {
     /**************************************************************************************
     * Sets Values for the model.
     *
-    * @param { string } key
-    * @param { string } value
+    * @param { number } amount
+    * @param { Function } successCallback
+    * @param { Function } failureCallback
+    * @param { Function } purchaseCallback
+    * @param { Function } refundCallback
     * @return { Void } void.
     **************************************************************************************/
     public insertCoinsViaBlockChain(amount, price, successCallback, failureCallback, purchaseCallback, refundCallback) {
@@ -28,8 +31,11 @@ export class VendingMachineBlockChainModel {
     /**************************************************************************************
     * Sets Values for the model.
     *
-    * @param { string } key
-    * @param { string } value
+    * @param { Object } product
+    * @param { Function } successCallback
+    * @param { Function } failureCallback
+    * @param { Function } purchaseCallback
+    * @param { Function } refundCallback
     * @return { Void } void.
     **************************************************************************************/
     public selectProductViaBlockChain(product, successCallback, failureCallback, purchaseCallback, refundCallback) {
@@ -44,10 +50,9 @@ export class VendingMachineBlockChainModel {
     }
 
     /**************************************************************************************
-    * Gets Values for the model.
+    * Gets product price from blockchain server
     *
-    * @param { string } key
-    * @param { string } value
+    * @param {} none
     * @return { Void } void.
     **************************************************************************************/
     public getSelectedProductPriceViaBlockChain() {
@@ -55,10 +60,9 @@ export class VendingMachineBlockChainModel {
     }
 
     /**************************************************************************************
-    * Gets Values for the model.
+    * Gets product id from blockchain server
     *
-    * @param { string } key
-    * @param { string } value
+    * @param {} none
     * @return { Void } void.
     **************************************************************************************/
     public getSelectedProductIdViaBlockChain() {
@@ -66,7 +70,7 @@ export class VendingMachineBlockChainModel {
     }
 
     /**************************************************************************************
-    * Gets Values for the model.
+    * Gets balance from blockchain server
     *
     * @param { string } key
     * @param { string } value
@@ -79,7 +83,11 @@ export class VendingMachineBlockChainModel {
     /**************************************************************************************
     * Validates payment is made and makes changes to model.
     *
-    * @param { Function } callback
+    * @param { number } price
+    * @param { Function } successCallback
+    * @param { Function } failureCallback
+    * @param { Function } purchaseCallback
+    * @param { Function } refundCallback
     * @return { Void } calls relevant function to process payment.
     **************************************************************************************/
     public validatePaymentConfirmationViaBlockChain(price, success, failure, purchaseCallback, refundCallback): void {
