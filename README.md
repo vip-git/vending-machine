@@ -7,7 +7,9 @@
 # Setup Instructions
 ```
 npm install
-npm start
+
+npm run blockchain-server (in a seperate command line or tab)
+npm start (in same tab or new one)
 ```
 
 # Test Coverage
