@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">87.23% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>41/47</span>
+        <span class='fraction'>32/32</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">64.29% </span>
+        <span class="strong">77.78% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>18/28</span>
+        <span class='fraction'>14/18</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>12/12</span>
+        <span class='fraction'>10/10</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">87.23% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>41/47</span>
+        <span class='fraction'>32/32</span>
       </div>
     </div>
     <p class="quiet">
@@ -223,7 +223,9 @@
 <a name='L175'></a><a href='#L175'>175</a>
 <a name='L176'></a><a href='#L176'>176</a>
 <a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -262,14 +264,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">23x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -297,19 +300,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -438,12 +442,13 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
     *
     * @return { Void } void.
     **************************************************************************************/
+    /* istanbul ignore next */
     public getValues() {
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (VendingMachineModel.isBlockChainEnabled) {
-<span class="cstat-no" title="statement not covered" >            VendingMachineModel.data.balance = this.getBalanceViaBlockChain();</span>
-<span class="cstat-no" title="statement not covered" >            if (VendingMachineModel.data &amp;&amp; VendingMachineModel.data.selectedProduct) {</span>
-<span class="cstat-no" title="statement not covered" >                VendingMachineModel.data.selectedProduct.productId = this.getSelectedProductIdViaBlockChain();</span>
-<span class="cstat-no" title="statement not covered" >                VendingMachineModel.data.selectedProduct.price = this.getSelectedProductPriceViaBlockChain();</span>
+        if (VendingMachineModel.isBlockChainEnabled) {
+            VendingMachineModel.data.balance = this.getBalanceViaBlockChain();
+            if (VendingMachineModel.data &amp;&amp; VendingMachineModel.data.selectedProduct) {
+                VendingMachineModel.data.selectedProduct.productId = this.getSelectedProductIdViaBlockChain();
+                VendingMachineModel.data.selectedProduct.price = this.getSelectedProductPriceViaBlockChain();
             }
         }
         return VendingMachineModel.data;
@@ -474,11 +479,12 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
     * @param { Function } callback
     * @return { Void } calls relevant function to process payment.
     **************************************************************************************/
+    /* istanbul ignore next */
     public validatePaymentConfirmation = (success, failure): void =&gt; {
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (VendingMachineModel.isBlockChainEnabled) {
-<span class="cstat-no" title="statement not covered" >            this.validatePaymentConfirmationViaBlockChain(VendingMachineModel.data.selectedProduct.price,</span>
+        if (VendingMachineModel.isBlockChainEnabled) {
+            this.validatePaymentConfirmationViaBlockChain(VendingMachineModel.data.selectedProduct.price,
             success, failure, this.purchaseProduct, this.refundBalance);
-<span class="cstat-no" title="statement not covered" >            return;</span>
+            return;
         }
 &nbsp;
         if (this.isProductSelectionPaymentValid()) {
@@ -583,7 +589,7 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Apr 17 2018 16:43:56 GMT+0200 (CEST)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Apr 17 2018 16:57:20 GMT+0200 (CEST)
 </div>
 </div>
 <script src="../prettify.js"></script>

@@ -36,6 +36,7 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
     *
     * @return { Void } void.
     **************************************************************************************/
+    /* istanbul ignore next */
     public getValues() {
         if (VendingMachineModel.isBlockChainEnabled) {
             VendingMachineModel.data.balance = this.getBalanceViaBlockChain();
@@ -72,6 +73,7 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
     * @param { Function } callback
     * @return { Void } calls relevant function to process payment.
     **************************************************************************************/
+    /* istanbul ignore next */
     public validatePaymentConfirmation = (success, failure): void => {
         if (VendingMachineModel.isBlockChainEnabled) {
             this.validatePaymentConfirmationViaBlockChain(VendingMachineModel.data.selectedProduct.price,
