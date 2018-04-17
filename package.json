@@ -26,7 +26,7 @@
   "dependencies": {
     "ethereumjs-testrpc": "^6.0.3",
     "solc": "^0.4.21",
-    "ts-node": "^5.0.1",
+    "ts-node": "^6.0.0",
     "typescript": "^2.8.1",
     "web3": "^0.20.0"
   }
