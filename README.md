@@ -15,6 +15,9 @@ npm start
 npm test
 ```
 
+# Demo (with Blockchain server)
+![blockchain](https://github.com/vip-git/vending-machine/blob/blockchain/demo.gif)
+
 # Concept Overview (Very rough Diagram)
 ![Concept](https://github.com/vip-git/vending-machine/blob/master/concept-vending-machine.png)
 
