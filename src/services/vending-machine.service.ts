@@ -23,6 +23,7 @@ export class VendingMachineService {
   private vendingMachineModel: VendingMachineModel;
   private productModel: ProductModel;
 
+  /* istanbul ignore next  */
   constructor(values: IVendingMachineModel, blockchainCreds: any = false) {
     this.vendingMachineModel = new VendingMachineModel(values, blockchainCreds);
     this.productModel = new ProductModel(ProductsMockData);

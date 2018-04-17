@@ -25,6 +25,7 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
     private static data: IVendingMachineModel;
     private static isBlockChainEnabled: boolean;
 
+    /* istanbul ignore next */
     constructor(initialValues: IVendingMachineModel, blockchainCreds: any) {
         super(blockchainCreds);
         VendingMachineModel.data = initialValues;
@@ -48,6 +49,15 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
         return VendingMachineModel.data;
     }
 
+    /**************************************************************************************
+    * Inserts coin in vending machine
+    *
+    * @param { number } amount
+    * @param { Function } successCallback
+    * @param { Function } failureCallback
+    * @return { Function } Function.
+    **************************************************************************************/
+    /* istanbul ignore next */
     public insertCoins(amount, success, failure) {
         return (VendingMachineModel.isBlockChainEnabled) ? this.insertCoinsViaBlockChain(amount,
                                                                 VendingMachineModel.data.selectedProduct.price,
@@ -59,6 +69,15 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
                                                             success, failure);
     }
 
+    /**************************************************************************************
+    * Selects product from vending machine
+    *
+    * @param { object } product
+    * @param { Function } successCallback
+    * @param { Function } failureCallback
+    * @return { Function } Function.
+    **************************************************************************************/
+    /* istanbul ignore next */
     public selectProduct(product, success, failure) {
         this.setValues('selectedProduct', product);
         return (VendingMachineModel.isBlockChainEnabled) ? this.selectProductViaBlockChain(product,
@@ -70,11 +89,12 @@ export class VendingMachineModel extends VendingMachineBlockChainModel {
     /**************************************************************************************
     * Validates payment is made and makes changes to model.
     *
-    * @param { Function } callback
-    * @return { Void } calls relevant function to process payment.
+    * @param { Function } successCallback
+    * @param { Function } failureCallback
+    * @return { Function } Function.
     **************************************************************************************/
-    /* istanbul ignore next */
     public validatePaymentConfirmation = (success, failure): void => {
+        /* istanbul ignore if  */
         if (VendingMachineModel.isBlockChainEnabled) {
             this.validatePaymentConfirmationViaBlockChain(VendingMachineModel.data.selectedProduct.price,
             success, failure, this.purchaseProduct, this.refundBalance);
