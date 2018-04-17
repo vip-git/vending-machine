@@ -9,7 +9,7 @@
 npm install
 
 npm run blockchain-server (in a seperate command line or tab)
-npm start (in same tab or new one)
+npm start -- --blockchain (in same tab or new one)
 ```
 
 # Test Coverage
